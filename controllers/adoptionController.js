@@ -105,8 +105,11 @@ export const updateAdoptionStatus = async (req, res) => {
     await adoption.save();
 
     if (status === 'Approved') {
-      adoption.pet.status = 'Adopted';
-      await adoption.pet.save();
+      await Pet.findByIdAndUpdate(
+        adoption.pet._id,
+        { status: 'Adopted' },
+        { new: true, runValidators: true }
+      );
     }
 
     const updatedAdoption = await Adoption.findById(adoption._id)
