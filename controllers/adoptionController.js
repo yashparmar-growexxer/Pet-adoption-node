@@ -26,7 +26,15 @@ export const createAdoption = async (req, res) => {
     });
 
     if (existingAdoption) {
-      return res.status(400).json({ message: 'You have already applied for this pet' });
+      // Allow re-applying only if previous application was rejected
+      if (existingAdoption.status === 'Rejected') {
+        // Delete the rejected application to allow new application
+        await existingAdoption.deleteOne();
+      } else {
+        return res.status(400).json({ 
+          message: `You already have a ${existingAdoption.status.toLowerCase()} application for this pet` 
+        });
+      }
     }
 
     const adoption = await Adoption.create({
